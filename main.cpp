@@ -8,13 +8,14 @@
 
 #define MAP_SIZE 20
 #define SNAKE 1
-#define FRUIT 9
+#define FRUIT 7
 #define EMPTY 0
+#define EVENT 100
 
 using namespace std;
 //map[y][x];
 int map[20][20];
-int fruit;
+int fruit, point;
 
 class Snake {
 private:
@@ -28,20 +29,38 @@ public:
 	void printSnake() {
 		system("cls");
 		this->setSnakeToMap();
+		cout << " [Snake Game] H:head,  x:body,  o:fruit \n";
 		for (int i = 0; i < MAP_SIZE; ++i) {
+			if (i == 0) cout << " ------------------------------------------\n";
+			if(i <=MAP_SIZE-1) cout << "¦¢";
 			for (int j = 0; j < MAP_SIZE; ++j) {
-				cout << map[i][j];
+				cout << ' ';
+				if (map[i][j] == EMPTY)
+					cout << ' ';
+				else if (map[i][j] == FRUIT)
+					cout << 'o';
+				
+				else if (this->head.front().first == j && this->head.front().second == i) {
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+					cout << 'H';
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+				}
+				/*else if (this->head.back().first == j && this->head.back().second == i)
+					cout << 'T';*/
+				else if (map[i][j] == SNAKE)
+					cout << 'x';
 			}
+			if (i <= MAP_SIZE - 1) cout << " ¦¢";
+			if (i == MAP_SIZE - 1) cout << "\n ------------------------------------------";
 			cout << '\n';
 		}
-		cout << "x : " << this->head.front().first << " y : " << this->head.front().second << "\nFruit : " << fruit << '\n';
+		cout << ' ';
+		cout << "x _ " << this->head.front().first+1 << " y _ " << this->head.front().second+1 << "\n Fruit > " << fruit << "\n Point > " << point << '\n';
 	}
 
 	pair<int, int> snakeHead() {
 		return this->head[0];
 	}
-
-
 
 	void setSnakeToMap() {
 		for (int i = 0; i < 20; ++i) {
@@ -55,8 +74,6 @@ public:
 			map[this->head[i].second][this->head[i].first] = SNAKE;
 		}
 	}
-
-
 
 	bool isCollision(int x, int y) {
 		for (int i = 1; i < this->head.size(); ++i) {
@@ -78,6 +95,7 @@ public:
 
 	void eatFruit(int x, int y) {
 		this->head.push_back({ x,y });
+		fruit--; point+=5;
 	}
 	//getch() = 224 after
 
@@ -150,10 +168,12 @@ int main() {
 		// make Fruit 3sec
 		if ((end - start) / CLOCKS_PER_SEC % 3 == 2) {
 			snake->makeFruit();
+			cout << ' ';
 			cout << "\n#####FRUIT#####" << '\n';
 			start = end;
 		}
 	}
+	cout << ' ';
 	cout << "game over.." << endl;
 	system("pause");
 	return 0;
